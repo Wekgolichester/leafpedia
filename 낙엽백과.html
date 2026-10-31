@@ -1,0 +1,462 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>낙엽백과</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: 백과사전 문서 화면. 상단 머리말 + 탭, 본문 섹션(사진·내용·AI탭·만든 카드), 오른쪽에 떠 있는 미리보기 그림 틀. 폰에서는 미리보기가 환영 상자 아래로. */
+:root{
+  --page:#FFFFFF; --text:#202122; --sub:#54595D; --link:#3366CC; --link-h:#2A4B8D; --red:#BA0000;
+  --rule:#A2A9B1; --frame:#C8CCD1; --pale:#F8F9FA; --pale2:#EAECF0;
+  --feat-bd:#A3BFB1; --feat-hd:#CEF2E0; --feat-bg:#F5FFFA;
+  --news-bd:#A3B0BF; --news-hd:#CEDFF2; --news-bg:#F5FAFF;
+  --serif:"Noto Serif KR","Linux Libertine",Georgia,serif;
+  --sans:"Noto Sans KR",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+body{background:var(--page);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.page{max-width:1000px;margin:0 auto}
+.lk{color:var(--link);background:none;border:0;padding:0;cursor:pointer;text-decoration:none;font:inherit}
+.lk:hover{color:var(--link-h);text-decoration:underline}
+.note{margin:0;font-size:13px;color:var(--sub)}
+
+/* 머리말 */
+.mast{display:flex;align-items:center;gap:14px;padding-block:14px 10px}
+.icon-btn{width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px;flex-shrink:0}
+.icon-btn:hover{background:var(--pale2)}
+.wordmark{display:flex;align-items:center;gap:8px;min-width:0}
+.wordmark svg{flex-shrink:0}
+.wm-text{display:flex;flex-direction:column;line-height:1.15}
+.wm-name{font-family:var(--serif);font-weight:500;font-size:25px;letter-spacing:.14em}
+.wm-tag{font-family:var(--serif);font-size:12px;color:var(--text);letter-spacing:.02em}
+.mast .spacer{flex:1}
+.toc{position:absolute;z-index:5;background:var(--page);border:1px solid var(--frame);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:12px 18px;border-radius:2px;min-width:200px}
+.toc strong{display:block;font-size:14px;margin-bottom:6px}
+.toc ol{margin:0;padding-left:20px;font-size:15px}
+
+/* 탭 */
+.tabs{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.tabs .grp{display:flex;gap:22px}
+.tab{background:none;border:0;padding:8px 0 9px;cursor:pointer;font-size:16px;color:var(--link);border-bottom:3px solid transparent;margin-bottom:-1px;min-height:44px}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--text)}
+.tab:hover{color:var(--link-h)}
+.tab[aria-selected="true"]:hover{color:var(--text)}
+
+/* 본문 */
+.body{display:flex;flex-direction:column;gap:24px;padding-top:18px;max-width:760px}
+.main{display:flex;flex-direction:column;gap:22px;min-width:0}
+.welcome{grid-column:1/-1;border:1px solid var(--frame);background:var(--pale);padding:18px 16px;text-align:center}
+.welcome h1{margin:0 0 6px;font-family:var(--sans);font-weight:400;font-size:clamp(24px,4.6vw,32px);line-height:1.3;text-wrap:balance}
+.welcome h1 span{color:var(--link)}
+.welcome p{margin:0;font-size:15px}
+.welcome .stat{margin-top:4px;font-size:14px;color:var(--text)}
+.welcome .stat b{color:var(--link);font-weight:400;font-variant-numeric:tabular-nums}
+
+h2.sec{margin:0;font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.3;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:4px}
+h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
+.section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+.section p{margin:0}
+
+/* 사진 */
+.photo{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:440px){.photo{grid-template-columns:minmax(0,1fr)}}
+.thumbframe{border:1px solid var(--frame);background:var(--pale);padding:4px;display:flex;flex-direction:column;gap:4px}
+.drop{position:relative;aspect-ratio:1/1;max-width:100%;background:var(--pale2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--link);cursor:pointer;overflow:hidden;outline:1px dashed transparent}
+.drop.over{outline-color:var(--link);background:var(--news-bg)}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumbframe .cap{font-size:12.5px;line-height:1.45;padding:0 2px 2px}
+.photo-ctl{display:flex;flex-direction:column;gap:10px;font-size:15px}
+.photo-ctl ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.range{display:flex;flex-direction:column;gap:2px;max-width:280px}
+.range input{width:100%;accent-color:var(--link)}
+.check{display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:32px}
+.check input{width:17px;height:17px;accent-color:var(--link)}
+
+/* 정보상자형 입력 */
+.edit-tools{display:flex;gap:4px 12px;flex-wrap:wrap;font-size:14px;color:var(--sub);align-items:center}
+.infobox{border:1px solid var(--rule);background:var(--pale);padding:6px;font-size:15px}
+.infobox .ib-title{background:var(--news-hd);text-align:center;font-weight:700;padding:5px 8px;margin-bottom:6px}
+.ib-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start;padding:6px 6px}
+.ib-row + .ib-row{border-top:1px solid var(--pale2)}
+.ib-row label{font-weight:700;padding-top:7px;line-height:1.3}
+.ib-row input,.ib-row textarea{width:100%;box-sizing:border-box;border:1px solid var(--frame);background:var(--page);border-radius:2px;padding:6px 9px;line-height:1.5}
+.ib-row input:focus,.ib-row textarea:focus{border-color:var(--link)}
+.ib-row textarea{resize:vertical}
+@media (max-width:440px){.ib-row{grid-template-columns:minmax(0,1fr);gap:2px}.ib-row label{padding-top:0}}
+
+/* 색 상자 (오늘의 문서 / 소식 상자 느낌) */
+.mp{border:1px solid var(--news-bd);background:var(--news-bg);padding:10px 12px 14px;display:flex;flex-direction:column;gap:10px}
+.mp-hd{margin:0 0 2px;background:var(--news-hd);border:1px solid var(--news-bd);padding:4px 10px;font-family:var(--sans);font-weight:700;font-size:19px}
+.mp.green{border-color:var(--feat-bd);background:var(--feat-bg)}
+.mp.green .mp-hd{background:var(--feat-hd);border-color:var(--feat-bd)}
+.prompt{white-space:pre-wrap;font-size:13.5px;line-height:1.6;background:var(--page);border:1px solid var(--frame);padding:10px 12px;margin:0;font-family:var(--sans)}
+.paste{width:100%;box-sizing:border-box;border:1px solid var(--frame);background:var(--page);padding:8px 10px;resize:vertical;line-height:1.5}
+.btnrow{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:15px}
+.btn{border:1px solid var(--rule);background:var(--pale);border-radius:2px;padding:6px 14px;min-height:40px;cursor:pointer;font-weight:700;color:var(--text)}
+.btn:hover{background:var(--page);border-color:var(--sub)}
+.btn.blue{background:var(--link);border-color:var(--link);color:#FFFFFF}
+.btn.blue:hover{background:var(--link-h);border-color:var(--link-h)}
+.btn:disabled{opacity:.55;cursor:wait}
+.sentences{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+
+/* 오른쪽 미리보기 */
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:2;background:var(--page);display:flex;flex-direction:column;gap:10px;align-self:start}
+.side-title{margin:0;text-align:center;font-weight:700;font-size:17px}
+.figure{border:1px solid var(--frame);background:var(--pale);padding:5px;display:flex;flex-direction:column;gap:6px}
+.scaler{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#fff;max-width:100%}
+.scaler>.card{position:absolute;left:0;top:0;transform-origin:0 0}
+.figure .cap{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;padding:0 3px 2px}
+.figure .cap button{flex-shrink:0;width:28px;height:28px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.side-table{border-top:1px solid var(--rule);font-size:14px;display:grid;grid-template-columns:72px minmax(0,1fr);gap:4px 10px;padding:8px 4px 0}
+.side-table dt{font-weight:700}.side-table dd{margin:0}
+
+/* 만든 카드 */
+.gallery{display:flex;flex-wrap:wrap;gap:10px}
+.gallery figure{margin:0;border:1px solid var(--frame);background:var(--pale);padding:4px;width:120px;display:flex;flex-direction:column;gap:3px}
+.gallery button{padding:0;border:0;background:#fff;cursor:pointer;display:block}
+.gallery img{width:110px;height:110px;display:block}
+.gallery figcaption{font-size:12px;text-align:center;line-height:1.35;word-break:keep-all}
+
+.foot{margin-top:28px;border-top:1px solid var(--frame);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+
+.modal{position:fixed;inset:0;background:rgba(32,33,34,.62);display:flex;align-items:center;justify-content:center;z-index:20;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal-box{background:var(--page);border:1px solid var(--frame);padding:14px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:10px}
+.modal-box img{width:100%;border:1px solid var(--frame)}
+
+/* ===== 카드 (이미지로 나가는 부분) ===== */
+.card{width:600px;height:600px;overflow:hidden;background:#FFFFFF;color:#202122;font-family:var(--sans);box-sizing:border-box;line-height:1.5}
+.card .lk2{color:#3366CC}.card .rd{color:#BA0000}.card b{font-weight:700}
+.w-title{margin:0;font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.2;word-break:keep-all}
+.w-rule{border-bottom:1px solid #A2A9B1}
+.w-thumb{margin:0 auto;width:400px;border:1px solid #C8CCD1;background:#F8F9FA;padding:6px;box-sizing:border-box}
+.w-thumb .ph{width:386px;overflow:hidden;background:#EAECF0;display:flex;align-items:center;justify-content:center;color:#72777D;font-size:14px}
+.w-thumb .ph img{width:386px;display:block}
+.w-thumb figcaption{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 4px 2px;font-size:16px;line-height:1.5}
+.w-thumb svg{flex-shrink:0;margin-top:3px}
+.c-dict{padding:26px 0 0}
+.c-dict .w-title{padding:0 30px;font-size:42px}
+.c-dict .w-rule{margin-top:14px}
+.c-dict .dbody{padding:20px 40px 0}
+.c-dict .pos{margin:0;font-size:22px;font-weight:700}
+.c-dict .edit{font-size:14px;font-weight:400;color:#54595D;margin-left:8px}
+.c-dict .def{margin:14px 0 0 20px;font-size:18px}
+.c-dict .ex{margin:8px 0 0 60px;font-size:17px;font-style:italic;color:#404244}
+.c-dict .w-thumb{margin-top:22px}
+.c-dict .ph{height:230px}
+.c-def{padding:26px 26px 0}
+.c-def .w-rule{margin-top:12px}
+.c-def .site{margin:12px 0 0;font-size:15px;color:#404244}
+.c-def .lead{margin:14px 0 0;font-size:18px;line-height:1.65}
+.c-def sup{color:#3366CC;font-size:12px}
+.c-def .w-thumb{margin-top:18px}
+.c-def .ph{height:200px}
+.c-def .foot2{margin-top:16px;border-top:1px solid #EAECF0;padding-top:8px;font-size:13px;color:#54595D}
+.c-def .foot2 span{color:#202122}
+</style>
+
+<div class="page">
+  <header class="mast">
+    <button class="icon-btn" type="button" id="tocBtn" aria-label="목차 열기" aria-expanded="false">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#202122" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+    <div class="wordmark">
+      <svg aria-hidden="true" viewBox="0 0 32 32" width="30" height="30"><path d="M16 29V17M16 17C7 16 3 8 8 3c3 3 5 3 8 0 3 3 5 3 8 0 5 5 1 13-8 14z" fill="#E8B931" stroke="#9C7A12" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+      <div class="wm-text"><span class="wm-name">낙엽백과</span><span class="wm-tag">우리 모두의 가을 기록</span></div>
+    </div>
+    <span class="spacer"></span>
+    <nav class="toc" id="toc" hidden aria-label="목차">
+      <strong>목차</strong>
+      <ol>
+        <li><button class="lk" type="button" data-go="s-photo">사진</button></li>
+        <li><button class="lk" type="button" data-go="s-content">내용</button></li>
+        <li><button class="lk" type="button" data-go="s-ai">네이버 AI탭에서 가져오기</button></li>
+        <li><button class="lk" type="button" data-go="s-made">만든 카드</button></li>
+      </ol>
+    </nav>
+  </header>
+
+  <div class="tabs">
+    <div class="grp" role="tablist" aria-label="카드 형식">
+      <button class="tab" role="tab" type="button" data-fmt="dict" aria-selected="true">사전형</button>
+      <button class="tab" role="tab" type="button" data-fmt="def" aria-selected="false">정의형</button>
+    </div>
+    <div class="grp">
+      <button class="tab" type="button" id="exportTab">이미지로 저장</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <section class="welcome">
+      <h1><span>낙엽백과</span>에 오신 것을 환영합니다,</h1>
+      <p>누구나 <span style="color:var(--link)">편집</span>할 수 있는 가을 백과사전.</p>
+      <p class="stat">사진 한 장과 문장 몇 줄로 문서 카드를 만들어요 · 이번에 만든 카드 <b id="statCount">0</b>장</p>
+    </section>
+
+    <main class="main">
+      <section class="section" id="s-photo" aria-labelledby="h-photo">
+        <h2 class="sec" id="h-photo">사진 <small>[ <button class="lk" type="button" id="pickLink">사진 바꾸기</button> ]</small></h2>
+        <div class="photo">
+          <div class="thumbframe">
+            <label class="drop" id="drop" for="file"><img id="thumb" alt="고른 사진" hidden><span id="dropText">눌러서 고르기<br>또는 끌어다 놓기</span></label>
+            <span class="cap" id="photoCap">카드에 들어갈 사진</span>
+          </div>
+          <input id="file" type="file" accept="image/*" hidden>
+          <div class="photo-ctl">
+            <p>나들이에서 찍은 사진 한 장을 넣어주세요. 사진은 서버에 올라가지 않고 이 기기에서만 처리됩니다.</p>
+            <ul>
+              <li><div class="range"><label for="pos">사진 위치: <span id="posVal">가운데</span></label><input id="pos" type="range" min="0" max="100" value="50"></div></li>
+              <li><label class="check"><input type="checkbox" id="bw">흑백으로 바꾸기</label></li>
+              <li><button class="lk" type="button" id="sampleBtn">예시 사진 다시 쓰기</button></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s-content" aria-labelledby="h-content">
+        <h2 class="sec" id="h-content">내용</h2>
+        <div class="edit-tools" aria-label="선택한 글자 꾸미기">
+          <span>선택한 글자를</span>
+          <span>[ <button class="lk tool" type="button" data-wrap="[,]">파란 링크</button> ]</span>
+          <span>[ <button class="lk tool" type="button" data-wrap="{,}" style="color:var(--red)">빨간 링크</button> ]</span>
+          <span>[ <button class="lk tool" type="button" data-wrap="**,**"><b>굵게</b></button> ]</span>
+        </div>
+        <div class="infobox">
+          <div class="ib-title" id="ibTitle">사전형 문서 정보</div>
+          <div id="fields"></div>
+        </div>
+        <p class="note"><span style="color:var(--red)">빨간 링크</span>는 아직 문서가 없는 항목이에요. "아직 안 가본 곳"에 쓰면 좋아요.</p>
+      </section>
+
+      <section class="section" id="s-ai" aria-labelledby="h-ai">
+        <div class="mp">
+          <h2 class="mp-hd" id="h-ai">네이버 AI탭에서 가져오기</h2>
+          <p>AI탭에 코스를 물어본 다음, 아래 질문을 이어서 보내세요. 답변을 붙여넣으면 문장을 나눠 드려요.</p>
+          <pre class="prompt" id="promptText">위 코스를 백과사전 문서처럼 다시 써줘. 아래 형식 그대로.
+제목: (연도 + 장소 + 가을 산책)
+첫 문단: 제목으로 시작해서 "~이다" 말투로 2문장.
+경로: 장소마다 한 줄 설명.
+정보: 날짜 / 지역 / 소요 시간</pre>
+          <div class="btnrow"><button class="btn" type="button" id="copyPrompt">질문 복사</button><span class="note" id="copyMsg" role="status"></span></div>
+          <label for="paste" style="font-weight:700;font-size:15px">AI탭 답변</label>
+          <textarea class="paste" id="paste" rows="4" placeholder="AI탭 답변을 여기에 붙여넣으세요"></textarea>
+          <div class="btnrow">
+            <button class="btn" type="button" id="parseBtn">문장 나누기</button>
+            <button class="lk" type="button" id="demoPaste">예시 답변으로 해보기</button>
+          </div>
+          <p class="note" id="chipHint" hidden>문장을 누르면 마지막으로 누른 칸(<b id="targetName">사진 캡션</b>)에 들어가요.</p>
+          <ul class="sentences" id="chips"></ul>
+        </div>
+      </section>
+
+      <section class="section" id="s-made" aria-labelledby="h-made">
+        <div class="mp green">
+          <h2 class="mp-hd" id="h-made">만든 카드</h2>
+          <p id="madeEmpty">아직 만든 카드가 없어요. 아래 <b>이미지로 저장</b>을 누르면 1200×1200 카드가 만들어져서 여기에 모여요. 여러 장 만들어 캐러셀로 올려보세요.</p>
+          <div class="btnrow"><button class="btn blue" type="button" id="exportBtn">이미지로 저장</button><span class="note" id="exportMsg" role="status"></span></div>
+          <div class="gallery" id="made"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <p class="note">이 문서는 <span id="today"></span>에 마지막으로 편집되었습니다.</p>
+    <p class="note">낙엽백과는 네이버 AI 디깅클럽 활동으로 만든 실험 웹이에요. 실제 백과사전과는 관련이 없습니다.</p>
+  </footer>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <strong id="modalTitle">카드</strong>
+    <img id="modalImg" alt="낙엽백과 카드">
+    <p class="note" id="modalNote">이미지를 길게 누르거나 우클릭해서 저장하세요.</p>
+    <button class="btn" type="button" id="closeModal">닫기</button>
+  </div>
+</div>
+<div id="offscreen" style="position:fixed;left:-10000px;top:0" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function(){
+  var FOOT='네이버 AI탭, "오늘 기준 안국역 근처 낙엽 산책 코스", 2026년 11월 1일 검색.';
+  var NAMES={dict:'사전형',def:'정의형'};
+  var SIZE={dict:[386,230],def:[386,200]};
+  var FIELDS={
+    dict:[['title','표제어','input'],['pos','품사','input'],['mean','뜻풀이','input'],['ex','예문','input'],['cap','사진 캡션','input']],
+    def:[['title','제목','input'],['lead','정의문','textarea'],['cap','사진 캡션','input'],['foot','각주','textarea']]
+  };
+  var DEFAULTS={
+    dict:{title:'은행하다',pos:'동사',mean:'([속어]) [은행]을 밟다.',ex:'오늘도 정독도서관 앞에서 **은행했다**.',cap:'**은행한** 운동화.'},
+    def:{title:'낙엽 피로',lead:'**낙엽 피로**는 [단풍 명소]를 세 곳 이상 연속으로 방문했을 때 나타나는 신체적, 정신적 [피로] 상태이다.',cap:'산책을 마치고 휴식 중인 관람객, [삼청동]',foot:FOOT}
+  };
+  var DEMO='제목: 2026년 안국 가을 산책\n첫 문단: 2026년 안국 가을 산책은 서울 종로구 안국역 일대에서 진행된 단풍 관람 산책이다. 참가자는 정독도서관 은행나무를 기점으로 약 3시간 동안 삼청동 일대를 이동하였다.\n경로:\n- 정독도서관: 은행나무가 이어지는 대표적인 관람 지점이다.\n- 삼청동 은행나무길: 카페와 갤러리 사이로 은행잎이 쌓이는 길이다.\n- [카페 이름]: 산책 중 휴식을 위해 방문하는 장소이다.\n정보: 2026년 11월 1일 / 서울 종로구 안국동 / 약 3시간';
+
+  var state={fmt:'dict',photo:null,isSample:true,pos:50,bw:false,fields:JSON.parse(JSON.stringify(DEFAULTS)),last:'cap',lastEl:null,crop:null,made:[]};
+  try{var saved=JSON.parse(localStorage.getItem('nakyeop-fields')||'null'); if(saved&&saved.dict&&saved.def) state.fields=saved}catch(e){}
+  function save(){try{localStorage.setItem('nakyeop-fields',JSON.stringify(state.fields))}catch(e){}}
+
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function md(s){return esc(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\[([^\]]+)\]/g,'<span class="lk2">$1</span>').replace(/\{([^}]+)\}/g,'<span class="rd">$1</span>')}
+  function plain(s){return String(s||'').replace(/\*\*|[\[\]{}]/g,'')}
+  var EXPAND='<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#54595D" stroke-width="1.6"><rect x="3" y="11" width="10" height="9"></rect><rect x="9" y="4" width="12" height="9" fill="#F8F9FA"></rect></svg>';
+
+  function cardHTML(f,d,img){
+    var ph=img?'<img src="'+img+'" alt="">':'사진을 넣어주세요';
+    var fig='<figure class="w-thumb"><div class="ph">'+ph+'</div><figcaption><span>'+md(d.cap)+'</span>'+EXPAND+'</figcaption></figure>';
+    if(f==='dict') return '<div class="card c-dict"><h1 class="w-title">'+md(d.title)+'</h1><div class="w-rule"></div><div class="dbody"><p class="pos">'+md(d.pos)+'<span class="edit">[ <span class="lk2">편집</span> ]</span></p><p class="def">1. '+md(d.mean)+'</p><p class="ex">'+md(d.ex)+'</p></div>'+fig+'</div>';
+    return '<div class="card c-def"><h1 class="w-title">'+md(d.title)+'</h1><div class="w-rule"></div><p class="site">낙엽백과, 우리 모두의 가을 기록.</p><p class="lead">'+md(d.lead)+'<sup>[1]</sup></p>'+fig+'<div class="foot2">1. <span>'+md(d.foot)+'</span></div></div>';
+  }
+
+  function samplePhoto(){
+    var c=document.createElement('canvas');c.width=1200;c.height=900;var x=c.getContext('2d');
+    var g=x.createLinearGradient(0,0,1200,900);g.addColorStop(0,'#B98E1E');g.addColorStop(1,'#5E4410');x.fillStyle=g;x.fillRect(0,0,1200,900);
+    var s=17;function r(){s=(s*9301+49297)%233280;return s/233280}
+    var pal=['#F2C94C','#E3B23C','#D19A1E','#C9772E','#EBD27A'];
+    for(var i=0;i<110;i++){var cx=r()*1200,cy=r()*900,sz=35+r()*70;x.save();x.translate(cx,cy);x.rotate(r()*6.28);
+      x.fillStyle=pal[Math.floor(r()*5)];x.globalAlpha=.75+r()*.25;x.beginPath();x.moveTo(0,0);x.arc(0,0,sz,-Math.PI*.85,-Math.PI*.15);x.closePath();x.fill();
+      x.strokeStyle='rgba(60,40,10,.35)';x.lineWidth=2.5;x.beginPath();x.moveTo(0,0);x.lineTo(0,sz*.5);x.stroke();x.restore()}
+    return c.toDataURL('image/jpeg',.88);
+  }
+
+  var ticket=0;
+  function makeCrop(){
+    if(!state.photo){state.crop=null;render();return}
+    var t=++ticket, sz=SIZE[state.fmt], W=sz[0]*2, H=sz[1]*2, A=W/H, im=new Image();
+    im.onload=function(){
+      if(t!==ticket)return;
+      var iw=im.width, ih=im.height, sw, sh, sx, sy, k=state.pos/100;
+      if(iw/ih>A){sh=ih;sw=ih*A;sx=(iw-sw)*k;sy=0}else{sw=iw;sh=iw/A;sx=0;sy=(ih-sh)*k}
+      var c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');x.drawImage(im,sx,sy,sw,sh,0,0,W,H);
+      if(state.bw){var d=x.getImageData(0,0,W,H),p=d.data;for(var i=0;i<p.length;i+=4){var v=p[i]*.299+p[i+1]*.587+p[i+2]*.114;p[i]=p[i+1]=p[i+2]=v}x.putImageData(d,0,0)}
+      state.crop=c.toDataURL('image/jpeg',.9); render();
+    };
+    im.src=state.photo;
+  }
+
+  function render(){}
+
+  /* 형식 탭 */
+  document.querySelectorAll('.tab[data-fmt]').forEach(function(b){
+    b.addEventListener('click',function(){
+      state.fmt=b.dataset.fmt;
+      document.querySelectorAll('.tab[data-fmt]').forEach(function(o){o.setAttribute('aria-selected',String(o===b))});
+      state.last='cap'; buildFields(); makeCrop();
+    });
+  });
+
+  /* 정보상자 입력 */
+  function buildFields(){
+    var wrap=$('fields'); wrap.innerHTML=''; $('ibTitle').textContent=NAMES[state.fmt]+' 문서 정보';
+    FIELDS[state.fmt].forEach(function(f){
+      var key=f[0], id='f-'+state.fmt+'-'+key;
+      var row=document.createElement('div'); row.className='ib-row';
+      var lb=document.createElement('label'); lb.htmlFor=id; lb.textContent=f[1];
+      var el=document.createElement(f[2]); el.id=id; el.value=state.fields[state.fmt][key]||'';
+      if(f[2]==='textarea') el.rows=key==='foot'?2:3;
+      el.addEventListener('input',function(){state.fields[state.fmt][key]=el.value;save();render()});
+      el.addEventListener('focus',function(){state.last=key;state.lastEl=el;$('targetName').textContent=f[1]});
+      row.appendChild(lb); row.appendChild(el); wrap.appendChild(row);
+    });
+    var lf=FIELDS[state.fmt].filter(function(x){return x[0]===state.last})[0]; $('targetName').textContent=lf?lf[1]:'사진 캡션';
+  }
+  document.querySelectorAll('.tool').forEach(function(b){
+    b.addEventListener('mousedown',function(e){e.preventDefault()});
+    b.addEventListener('click',function(){
+      var el=state.lastEl; if(!el||!document.body.contains(el)) el=$('f-'+state.fmt+'-cap');
+      var p=b.dataset.wrap.split(','), s=el.selectionStart, e=el.selectionEnd, v=el.value;
+      if(s===e){el.focus();return}
+      el.value=v.slice(0,s)+p[0]+v.slice(s,e)+p[1]+v.slice(e);
+      el.focus(); el.setSelectionRange(s,e+p[0].length+p[1].length); el.dispatchEvent(new Event('input'));
+    });
+  });
+
+  /* 사진 */
+  function setPhoto(src,sample){state.photo=src;state.isSample=!!sample;$('thumb').src=src;$('thumb').hidden=false;$('dropText').hidden=true;$('photoCap').textContent=sample?'예시 사진 (은행잎)':'내가 고른 사진';makeCrop()}
+  function readFile(file){
+    if(!file||!/^image\//.test(file.type))return;
+    var rd=new FileReader(); rd.onload=function(){
+      var im=new Image(); im.onload=function(){
+        var k=Math.min(1,1600/Math.max(im.width,im.height)), c=document.createElement('canvas');
+        c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        setPhoto(c.toDataURL('image/jpeg',.9),false);
+      }; im.src=rd.result;
+    }; rd.readAsDataURL(file);
+  }
+  $('file').addEventListener('change',function(e){readFile(e.target.files[0])});
+  $('pickLink').addEventListener('click',function(){$('file').click()});
+  var drop=$('drop');
+  ['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over')})});
+  drop.addEventListener('drop',function(e){readFile(e.dataTransfer.files[0])});
+  $('sampleBtn').addEventListener('click',function(){setPhoto(samplePhoto(),true)});
+  $('pos').addEventListener('input',function(e){state.pos=+e.target.value;$('posVal').textContent=state.pos<34?'위쪽':state.pos>66?'아래쪽':'가운데';makeCrop()});
+  $('bw').addEventListener('change',function(e){state.bw=e.target.checked;makeCrop()});
+
+  /* AI탭 */
+  $('copyPrompt').addEventListener('click',function(){
+    var t=$('promptText').textContent;
+    function fb(){var r=document.createRange();r.selectNodeContents($('promptText'));var s=getSelection();s.removeAllRanges();s.addRange(r);$('copyMsg').textContent='선택해뒀어요. 복사해서 쓰세요.'}
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){$('copyMsg').textContent='복사했어요.'},fb); else fb();
+  });
+  function put(key,text){state.fields[state.fmt][key]=text;save();var el=$('f-'+state.fmt+'-'+key);if(el)el.value=text;render()}
+  function sentences(s){return s.split(/(?<=다\.)\s+/).map(function(x){return x.trim()}).filter(Boolean)}
+  function parse(){
+    var lines=$('paste').value.split(/\n+/).map(function(l){return l.replace(/^[\s\-•*·]+/,'').trim()}).filter(Boolean), out=[];
+    lines.forEach(function(l){
+      var m;
+      if((m=l.match(/^제목\s*[:：]\s*(.+)$/))){put('title',m[1]);return}
+      if((m=l.match(/^첫\s*문단\s*[:：]\s*(.+)$/))){
+        var ss=sentences(m[1]);
+        if(state.fmt==='def'&&ss[0]){var t=state.fields.def.title; put('lead', t&&ss[0].indexOf(t)===0?'**'+t+'**'+ss[0].slice(t.length):ss[0])}
+        ss.forEach(function(x){out.push(x)}); return}
+      if(/^(경로|정보)\s*[:：]?\s*$/.test(l))return;
+      sentences(l.replace(/^(경로|정보)\s*[:：]\s*/,'')).forEach(function(x){out.push(x)});
+    });
+    var w=$('chips'); w.innerHTML='';
+    out.forEach(function(s){var li=document.createElement('li');var b=document.createElement('button');b.type='button';b.className='lk';b.style.textAlign='left';b.textContent=s;b.addEventListener('click',function(){put(state.last,s)});li.appendChild(b);w.appendChild(li)});
+    $('chipHint').hidden=!out.length;
+  }
+  $('parseBtn').addEventListener('click',parse);
+  $('demoPaste').addEventListener('click',function(){$('paste').value=DEMO;parse()});
+
+  /* 목차 */
+  var toc=$('toc');
+  $('tocBtn').addEventListener('click',function(){var open=toc.hidden;toc.hidden=!open;this.setAttribute('aria-expanded',String(open));if(open){var r=this.getBoundingClientRect();toc.style.left=(r.left+window.scrollX)+'px';toc.style.top=(r.bottom+window.scrollY+4)+'px'}});
+  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){toc.hidden=true;$('tocBtn').setAttribute('aria-expanded','false');$(b.dataset.go).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
+
+  /* 저장 */
+  function showModal(url,title,note){$('modalImg').src=url;$('modalTitle').textContent=title;$('modalNote').textContent=note;$('modal').hidden=false;$('closeModal').focus()}
+  function exportCard(){
+    var btns=[$('exportBtn'),$('exportTab')]; btns.forEach(function(b){b.disabled=true}); $('exportBtn').textContent='만드는 중';
+    var done=function(){btns.forEach(function(b){b.disabled=false}); $('exportBtn').textContent='이미지로 저장'};
+    if(!window.html2canvas){done();$('exportMsg').textContent='이미지 변환 도구를 불러오지 못했어요. 새로고침한 뒤 다시 눌러주세요.';return}
+    var off=$('offscreen'), d=state.fields[state.fmt], title=plain(d.title)||'제목 없음';
+    off.innerHTML=cardHTML(state.fmt,d,state.crop);
+    (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){
+      return html2canvas(off.firstElementChild,{scale:2,backgroundColor:'#ffffff',logging:false});
+    }).then(function(c){
+      var url=c.toDataURL('image/png'); off.innerHTML=''; state.made.push(url);
+      var fig=document.createElement('figure'), b=document.createElement('button'), im=document.createElement('img'), cap=document.createElement('figcaption');
+      b.type='button'; b.setAttribute('aria-label',title+' 카드 크게 보기'); im.src=url; im.alt=''; b.appendChild(im);
+      cap.textContent=title; fig.appendChild(b); fig.appendChild(cap); $('made').appendChild(fig);
+      b.addEventListener('click',function(){showModal(url,title,'이미지를 길게 누르거나 우클릭해서 저장하세요.')});
+      $('madeEmpty').textContent='이미지를 누르면 크게 보고 저장할 수 있어요.'; $('statCount').textContent=state.made.length; $('exportMsg').textContent='만든 카드 '+state.made.length+'장. 아래 "만든 카드"에 모여 있어요.';
+      showModal(url,title,'이미지를 길게 누르거나 우클릭해서 저장하세요.'); done();
+    }).catch(function(){off.innerHTML='';done();$('exportMsg').textContent='이미지를 만들지 못했어요. 다시 눌러주세요.'});
+  }
+  $('exportBtn').addEventListener('click',exportCard);
+  $('exportTab').addEventListener('click',exportCard);
+  $('closeModal').addEventListener('click',function(){$('modal').hidden=true});
+  $('modal').addEventListener('click',function(e){if(e.target===this)this.hidden=true});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){$('modal').hidden=true;toc.hidden=true}});
+
+  var now=new Date(); $('today').textContent=now.getFullYear()+'년 '+(now.getMonth()+1)+'월 '+now.getDate()+'일';
+  buildFields(); setPhoto(samplePhoto(),true);
+})();
+</script>
+
+</body></html>
