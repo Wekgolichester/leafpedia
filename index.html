@@ -75,13 +75,23 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
 .check input{width:17px;height:17px;accent-color:var(--link)}
 
 /* 정보상자형 입력 */
-.edit-tools{display:flex;gap:4px 12px;flex-wrap:wrap;font-size:14px;color:var(--sub);align-items:center}
+.edit-tools{border:1px solid var(--frame);background:var(--page);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.edit-tools .how{margin:0;font-size:14px;color:var(--text)}
+.edit-tools .how b{font-weight:700}
+.tool-row{display:flex;gap:8px;flex-wrap:wrap}
+.tool{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--frame);background:var(--pale);border-radius:2px;padding:6px 12px;min-height:44px;cursor:pointer;text-align:left}
+.tool:hover{border-color:var(--link);background:var(--news-bg)}
+.tool .t-name{font-size:14px;font-weight:700;color:var(--text)}
+.tool .t-ex{font-size:13px}
+.tool-msg{margin:0;font-size:13px;color:var(--red);min-height:1em}
 .infobox{border:1px solid var(--rule);background:var(--pale);padding:6px;font-size:15px}
 .infobox .ib-title{background:var(--news-hd);text-align:center;font-weight:700;padding:5px 8px;margin-bottom:6px}
 .ib-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start;padding:6px 6px}
 .ib-row + .ib-row{border-top:1px solid var(--pale2)}
 .ib-row label{font-weight:700;padding-top:7px;line-height:1.3}
 .ib-row input,.ib-row textarea{width:100%;box-sizing:border-box;border:1px solid var(--frame);background:var(--page);border-radius:2px;padding:6px 9px;line-height:1.5}
+.ib-row input::placeholder,.ib-row textarea::placeholder{color:#767A82;opacity:1}
+.ib-hint{margin:0 6px 4px;font-size:13px;color:#54595D}
 .ib-row input:focus,.ib-row textarea:focus{border-color:var(--link)}
 .ib-row textarea{resize:vertical}
 @media (max-width:440px){.ib-row{grid-template-columns:minmax(0,1fr);gap:2px}.ib-row label{padding-top:0}}
@@ -217,29 +227,41 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
 
       <section class="section" id="s-content" aria-labelledby="h-content">
         <h2 class="sec" id="h-content">내용</h2>
-        <div class="edit-tools" aria-label="선택한 글자 꾸미기">
-          <span>선택한 글자를</span>
-          <span>[ <button class="lk tool" type="button" data-wrap="[,]">파란 링크</button> ]</span>
-          <span>[ <button class="lk tool" type="button" data-wrap="{,}" style="color:var(--red)">빨간 링크</button> ]</span>
-          <span>[ <button class="lk tool" type="button" data-wrap="**,**"><b>굵게</b></button> ]</span>
+        <div class="edit-tools" role="group" aria-labelledby="toolHow">
+          <p class="how" id="toolHow"><b>글자 꾸미기</b> · 아래 칸에서 꾸미고 싶은 단어를 드래그해서 고른 다음, 버튼을 눌러주세요.</p>
+          <div class="tool-row">
+            <button class="tool" type="button" data-wrap="[,]"><span class="t-name">파란 글씨</span><span class="t-ex"><span style="color:var(--link)">정독도서관</span> · 문서가 있는 링크처럼</span></button>
+            <button class="tool" type="button" data-wrap="{,}"><span class="t-name">빨간 글씨</span><span class="t-ex"><span style="color:var(--red)">북촌 전망대</span> · 아직 안 가본 곳</span></button>
+            <button class="tool" type="button" data-wrap="**,**"><span class="t-name">굵게</span><span class="t-ex"><b>삼청동 증후군</b> · 강조할 단어</span></button>
+          </div>
+          <p class="tool-msg" id="toolMsg" role="status"></p>
         </div>
         <div class="infobox">
           <div class="ib-title" id="ibTitle">사전형 문서 정보</div>
+          <p class="ib-hint">회색 글씨는 예시예요. 칸에 글자를 쓰기 시작하면 자동으로 사라져요.</p>
           <div id="fields"></div>
         </div>
-        <p class="note"><span style="color:var(--red)">빨간 링크</span>는 아직 문서가 없는 항목이에요. "아직 안 가본 곳"에 쓰면 좋아요.</p>
       </section>
 
       <section class="section" id="s-ai" aria-labelledby="h-ai">
         <div class="mp">
           <h2 class="mp-hd" id="h-ai">네이버 AI탭에서 가져오기</h2>
-          <p>AI탭에 코스를 물어본 다음, 아래 질문을 이어서 보내세요. 답변을 붙여넣으면 문장을 나눠 드려요.</p>
+          <p>네이버 AI탭에 두 번 물어보세요. 먼저 오늘 돌아다닐 나들이 코스를 짜고, 그 코스를 백과사전 말투로 바꿔달라고 하면 돼요.</p>
+          <p style="font-weight:700">1단계. 나들이 코스 물어보기</p>
+          <div style="display:flex;flex-direction:column;gap:4px;max-width:320px">
+            <label for="area" style="font-size:14px">가고 싶은 동네</label>
+            <input id="area" type="text" placeholder="예: 삼청동, 성수동, 연남동" style="border:1px solid var(--frame);background:var(--page);border-radius:2px;padding:6px 9px">
+          </div>
+          <pre class="prompt" id="courseText">오늘 기준으로 (동네)에서 하루 나들이 코스 짜줘.</pre>
+          <div class="btnrow"><button class="btn" type="button" data-copy="courseText">코스 질문 복사</button><span class="note" data-msg="courseText" role="status"></span></div>
+          <p style="font-weight:700">2단계. 같은 대화에서 백과사전 말투로 바꾸기</p>
+          <p class="note">1단계 답변이 나온 다음, 그 대화에 이어서 보내세요. 답변을 아래에 붙여넣으면 문장을 나눠 드려요.</p>
           <pre class="prompt" id="promptText">위 코스를 백과사전 문서처럼 다시 써줘. 아래 형식 그대로.
 제목: (연도 + 장소 + 가을 산책)
 첫 문단: 제목으로 시작해서 "~이다" 말투로 2문장.
 경로: 장소마다 한 줄 설명.
 정보: 날짜 / 지역 / 소요 시간</pre>
-          <div class="btnrow"><button class="btn" type="button" id="copyPrompt">질문 복사</button><span class="note" id="copyMsg" role="status"></span></div>
+          <div class="btnrow"><button class="btn" type="button" data-copy="promptText">백과사전 질문 복사</button><span class="note" data-msg="promptText" role="status"></span></div>
           <label for="paste" style="font-weight:700;font-size:15px">AI탭 답변</label>
           <textarea class="paste" id="paste" rows="4" placeholder="AI탭 답변을 여기에 붙여넣으세요"></textarea>
           <div class="btnrow">
@@ -294,9 +316,11 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
   };
   var DEMO='제목: 2026년 안국 가을 산책\n첫 문단: 2026년 안국 가을 산책은 서울 종로구 안국역 일대에서 진행된 단풍 관람 산책이다. 참가자는 정독도서관 은행나무를 기점으로 약 3시간 동안 삼청동 일대를 이동하였다.\n경로:\n- 정독도서관: 은행나무가 이어지는 대표적인 관람 지점이다.\n- 삼청동 은행나무길: 카페와 갤러리 사이로 은행잎이 쌓이는 길이다.\n- [카페 이름]: 산책 중 휴식을 위해 방문하는 장소이다.\n정보: 2026년 11월 1일 / 서울 종로구 안국동 / 약 3시간';
 
-  var state={fmt:'dict',photo:null,isSample:true,pos:50,bw:false,fields:JSON.parse(JSON.stringify(DEFAULTS)),last:'cap',lastEl:null,crop:null,made:[]};
-  try{var saved=JSON.parse(localStorage.getItem('nakyeop-fields')||'null'); if(saved&&saved.dict&&saved.def) state.fields=saved}catch(e){}
-  function save(){try{localStorage.setItem('nakyeop-fields',JSON.stringify(state.fields))}catch(e){}}
+  /* 칸은 비워두고, 예시(DEFAULTS)는 회색 placeholder로만 보여줌 */
+  var EMPTY={dict:{title:'',pos:'',mean:'',ex:'',cap:''},def:{title:'',lead:'',cap:'',foot:''}};
+  var state={fmt:'dict',photo:null,isSample:true,pos:50,bw:false,fields:JSON.parse(JSON.stringify(EMPTY)),last:'cap',lastEl:null,crop:null,made:[]};
+  try{var saved=JSON.parse(localStorage.getItem('nakyeop-fields2')||'null'); if(saved&&saved.dict&&saved.def) state.fields=saved}catch(e){}
+  function save(){try{localStorage.setItem('nakyeop-fields2',JSON.stringify(state.fields))}catch(e){}}
 
   function $(id){return document.getElementById(id)}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -355,7 +379,7 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
       var key=f[0], id='f-'+state.fmt+'-'+key;
       var row=document.createElement('div'); row.className='ib-row';
       var lb=document.createElement('label'); lb.htmlFor=id; lb.textContent=f[1];
-      var el=document.createElement(f[2]); el.id=id; el.value=state.fields[state.fmt][key]||'';
+      var el=document.createElement(f[2]); el.id=id; el.value=state.fields[state.fmt][key]||''; el.placeholder=DEFAULTS[state.fmt][key]||''; el.autocomplete='off';
       if(f[2]==='textarea') el.rows=key==='foot'?2:3;
       el.addEventListener('input',function(){state.fields[state.fmt][key]=el.value;save();render()});
       el.addEventListener('focus',function(){state.last=key;state.lastEl=el;$('targetName').textContent=f[1]});
@@ -368,7 +392,8 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
     b.addEventListener('click',function(){
       var el=state.lastEl; if(!el||!document.body.contains(el)) el=$('f-'+state.fmt+'-cap');
       var p=b.dataset.wrap.split(','), s=el.selectionStart, e=el.selectionEnd, v=el.value;
-      if(s===e){el.focus();return}
+      if(s===e){el.focus();$('toolMsg').textContent='먼저 칸 안에서 꾸미고 싶은 단어를 드래그해서 골라주세요.';return}
+      $('toolMsg').textContent='';
       el.value=v.slice(0,s)+p[0]+v.slice(s,e)+p[1]+v.slice(e);
       el.focus(); el.setSelectionRange(s,e+p[0].length+p[1].length); el.dispatchEvent(new Event('input'));
     });
@@ -397,10 +422,13 @@ h2.sec small{font-family:var(--sans);font-size:14px;color:var(--sub)}
   $('bw').addEventListener('change',function(e){state.bw=e.target.checked;makeCrop()});
 
   /* AI탭 */
-  $('copyPrompt').addEventListener('click',function(){
-    var t=$('promptText').textContent;
-    function fb(){var r=document.createRange();r.selectNodeContents($('promptText'));var s=getSelection();s.removeAllRanges();s.addRange(r);$('copyMsg').textContent='선택해뒀어요. 복사해서 쓰세요.'}
-    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){$('copyMsg').textContent='복사했어요.'},fb); else fb();
+  $('area').addEventListener('input',function(e){var v=e.target.value.trim();$('courseText').textContent='오늘 기준으로 '+(v||'(동네)')+'에서 하루 나들이 코스 짜줘.'});
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var src=$(btn.dataset.copy), msg=document.querySelector('[data-msg="'+btn.dataset.copy+'"]'), t=src.textContent;
+      function fb(){var r=document.createRange();r.selectNodeContents(src);var s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent='선택해뒀어요. 복사해서 쓰세요.'}
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){msg.textContent='복사했어요.'},fb); else fb();
+    });
   });
   function put(key,text){state.fields[state.fmt][key]=text;save();var el=$('f-'+state.fmt+'-'+key);if(el)el.value=text;render()}
   function sentences(s){return s.split(/(?<=다\.)\s+/).map(function(x){return x.trim()}).filter(Boolean)}
